@@ -440,10 +440,18 @@ export default function ChatPage() {
           <section className="flex-1 flex flex-col bg-background">
             {/* Empty state when no chat selected */}
             {!selectedChat && (
-              <div className="flex flex-1 flex-col items-center justify-center text-center px-8 gap-4">
+              <div className="flex flex-1 items-center justify-center px-8">
+                <div className="flex flex-col items-center text-center gap-4 max-w-md">
                 <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-primary/10 text-primary border border-primary/20">
                   <MessageCircle className="h-8 w-8" />
                 </div>
+                <div className="space-y-1">
+                <h2 className="text-xl font-semibold tracking-tight">
+                  Open a chat to get started
+                </h2>
+                <p className="text-sm text-muted-foreground max-w-md">
+                  Everything stays end‑to‑end encrypted.
+                </p>
                 <div className="space-y-1 max-w-md">
                   <h2 className="text-xl font-semibold tracking-tight">
                     Open a chat to get started
@@ -454,10 +462,7 @@ export default function ChatPage() {
                     end‑to‑end encrypted.
                   </p>
                 </div>
-                <button className="mt-2 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium bg-background hover:bg-muted/60 transition cursor-pointer">
-                  <MessageCircle className="h-4 w-4" />
-                  Create or join a room
-                </button>
+                </div>
               </div>
             )}
 
