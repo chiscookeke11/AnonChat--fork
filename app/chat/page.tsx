@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import React, {
   useEffect,
@@ -46,24 +46,24 @@ import { useWebSocketSend, useWebSocketMessage } from "@/lib/websocket/hooks";
 import { WebSocketMessage } from "@/types/websocket";
 
 type ChatPreview = {
-  id: string;
-  name: string;
-  address: string;
-  lastMessage: string;
-  lastSeen: string;
-  unreadCount: number;
-  status: PresenceStatus;
-};
+  id: string
+  name: string
+  address: string
+  lastMessage: string
+  lastSeen: string
+  unreadCount: number
+  status: PresenceStatus
+}
 
 type ChatMessage = {
-  id: string;
-  author: "me" | "them";
-  text: string;
-  time: string;
-  delivered: boolean;
-  read: boolean;
-  status?: "sending" | "sent" | "delivered" | "read";
-};
+  id: string
+  author: "me" | "them"
+  text: string
+  time: string
+  delivered: boolean
+  read: boolean
+  status?: "sending" | "sent" | "delivered" | "read"
+}
 
 interface DBRoom {
   id: string;

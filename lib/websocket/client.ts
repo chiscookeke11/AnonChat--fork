@@ -5,6 +5,7 @@ import {
   WebSocketClientEventType,
   ConnectionState,
 } from "@/types/websocket"
+import { rateLimiter } from "@/lib/rate-limiter"
 
 const RECONNECT_ATTEMPTS = 5
 const INITIAL_RECONNECT_DELAY = 1000 // 1 second
@@ -20,6 +21,7 @@ export class WebSocketClient {
   private reconnectDelay = INITIAL_RECONNECT_DELAY
   private reconnectTimeout: ReturnType<typeof setTimeout> | null = null
   private clientId: string | null = null
+  private walletAddress: string | null = null
 
   constructor(url: string) {
     this.url = url
@@ -189,6 +191,7 @@ export class WebSocketClient {
 
   // Convenience methods for common messages
   authenticate(userId: string, walletAddress: string, displayName: string, avatarUrl?: string) {
+    this.walletAddress = walletAddress
     this.send({
       type: "auth",
       payload: {
@@ -217,12 +220,26 @@ export class WebSocketClient {
     })
   }
 
-  sendMessage(roomId: string, content: string) {
+  sendMessage(roomId: string, content: string): { success: boolean; error?: string } {
+    if (!this.walletAddress) {
+      return { success: false, error: "Wallet not connected" }
+    }
+
+    const rateLimitCheck = rateLimiter.check(this.walletAddress)
+    if (!rateLimitCheck.allowed) {
+      const seconds = Math.ceil((rateLimitCheck.remainingMs || 0) / 1000)
+      return { 
+        success: false, 
+        error: `You are sending messages too quickly. Please wait ${seconds} second${seconds !== 1 ? 's' : ''}.` 
+      }
+    }
+
     this.send({
       type: "send_message",
       payload: { roomId, content },
       timestamp: Date.now(),
     })
+    return { success: true }
   }
 
   notifyTyping(roomId: string) {

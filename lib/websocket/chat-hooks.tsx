@@ -152,8 +152,13 @@ export function useRealtimeChat(roomId: string, userId?: string) {
 
       setMessages((prev) => [...prev, optimisticMessage])
 
-      // Send via WebSocket
-      sendMessage(roomId, content)
+      // Send via WebSocket with rate limit check
+      const result = sendMessage(roomId, content)
+      if (!result.success) {
+        // Remove optimistic message on failure
+        setMessages((prev) => prev.filter((m) => m.id !== optimisticMessage.id))
+        toast.error(result.error || "Failed to send message")
+      }
     },
     [roomId, userId, sendMessage],
   )
