@@ -10,9 +10,11 @@ import ConnectWallet from "@/components/wallet-connector";
 import { cn } from "@/lib/utils";
 import {
   ArrowLeft,
+  MessageSquare,
   Loader2,
   Menu,
   Paperclip,
+  PanelLeft,
   Search,
   SendHorizontal,
   Smile,
@@ -59,6 +61,9 @@ export default function ChatPage() {
   const [inputMessage, setInputMessage] = useState("");
   const [roomMembersOpen, setRoomMembersOpen] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [activeMobileTab, setActiveMobileTab] = useState<"chats" | "conversation">(
+    "conversation",
+  );
 
   const [currentUser, setCurrentUser] = useState<{ id: string } | null>(null);
   const [isLoadingRooms, setIsLoadingRooms] = useState(true);
@@ -253,7 +258,10 @@ export default function ChatPage() {
   const handleSelectChat = useCallback((chatId: string) => {
     setSelectedChatId(chatId);
     setMobileSidebarOpen(false);
+    setActiveMobileTab("conversation");
   }, []);
+
+  const isMobileSidebarVisible = mobileSidebarOpen || activeMobileTab === "chats";
 
   const handleSendMessage = useCallback(async () => {
     const trimmedMessage = inputMessage.trim();
@@ -371,14 +379,14 @@ export default function ChatPage() {
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
 
-      <main className="flex-1 pt-24 pb-8 px-3 sm:px-6">
+      <main className="flex-1 pt-24 pb-24 md:pb-8 px-3 sm:px-6">
         <div className="mx-auto w-full max-w-7xl h-[min(84vh,820px)] rounded-3xl border border-border/70 bg-card/90 shadow-[0_24px_64px_-24px_rgba(0,0,0,0.35)] backdrop-blur-sm overflow-hidden">
           <div className="h-full flex relative">
             <aside
               className={cn(
-                "absolute inset-y-0 left-0 z-20 w-[86vw] max-w-[360px] border-r border-border/70 bg-card md:static md:w-[340px]",
-                "transition-transform duration-200",
-                mobileSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
+                "absolute inset-y-0 left-0 z-20 w-full border-r border-border/70 bg-card md:static md:w-[340px] md:max-w-none",
+                "transition-transform duration-300 ease-out md:translate-x-0",
+                isMobileSidebarVisible ? "translate-x-0" : "-translate-x-full",
               )}
               aria-label="Group sidebar"
             >
@@ -464,7 +472,12 @@ export default function ChatPage() {
               />
             )}
 
-            <section className="flex-1 flex flex-col bg-background/30">
+            <section
+              className={cn(
+                "flex-1 flex flex-col bg-background/30 transition-opacity duration-300",
+                activeMobileTab === "chats" && "hidden md:flex",
+              )}
+            >
               {!selectedChat && <ChatEmptyState />}
 
               {selectedChat && (
@@ -613,6 +626,51 @@ export default function ChatPage() {
             </section>
           </div>
         </div>
+
+        <nav
+          aria-label="Mobile navigation"
+          className="md:hidden fixed inset-x-3 bottom-3 z-30 rounded-2xl border border-border/70 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/85 shadow-lg"
+          style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
+        >
+          <div className="grid grid-cols-2 gap-1 p-1.5">
+            <button
+              type="button"
+              aria-label="Show groups"
+              aria-pressed={activeMobileTab === "chats"}
+              onClick={() => {
+                setActiveMobileTab("chats");
+                setMobileSidebarOpen(false);
+              }}
+              className={cn(
+                "min-h-12 rounded-xl inline-flex items-center justify-center gap-2 text-sm font-medium transition-colors",
+                activeMobileTab === "chats"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/40",
+              )}
+            >
+              <PanelLeft className="h-4 w-4" />
+              Groups
+            </button>
+            <button
+              type="button"
+              aria-label="Show conversation"
+              aria-pressed={activeMobileTab === "conversation"}
+              onClick={() => {
+                setActiveMobileTab("conversation");
+                setMobileSidebarOpen(false);
+              }}
+              className={cn(
+                "min-h-12 rounded-xl inline-flex items-center justify-center gap-2 text-sm font-medium transition-colors",
+                activeMobileTab === "conversation"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/40",
+              )}
+            >
+              <MessageSquare className="h-4 w-4" />
+              Chat
+            </button>
+          </div>
+        </nav>
       </main>
 
       <Footer />
