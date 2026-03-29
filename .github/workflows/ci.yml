@@ -8,6 +8,10 @@ jobs:
     name: Check & Build
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node-version: [20]
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -15,11 +19,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Run linter
         run: npm run lint
